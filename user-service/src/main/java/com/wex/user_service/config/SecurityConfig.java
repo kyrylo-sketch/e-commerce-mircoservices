@@ -35,15 +35,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         return http
                 .csrf(custom -> custom.disable())
-                .cors(cors -> cors.configurationSource(request ->{
-                    var config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:3000"));
-                    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(java.util.List.of("*"));
-                    //potrzebne gdy wysylamy ciasteczka lub autoryzacje
-                    config.setAllowCredentials(true);
-                    return config;
-                }))
+//                .cors(cors -> cors.configurationSource(request ->{
+//                    var config = new CorsConfiguration();
+//                    config.setAllowedOrigins(List.of("http://localhost:3000"));
+//                    config.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//                    config.setAllowedHeaders(java.util.List.of("*"));
+//                    //potrzebne gdy wysylamy ciasteczka lub autoryzacje
+//                    config.setAllowCredentials(true);
+//                    return config;
+//                }))
                 .authorizeHttpRequests(request ->
                         request.requestMatchers("/api/auth/register","/api/auth/login", "/api/auth/refresh", "/api/products/**",
                                 "/swagger-ui/**", "/v3/api-docs/**")

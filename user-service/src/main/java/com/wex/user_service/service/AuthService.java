@@ -20,7 +20,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
 
-    public record Result(String accessToken, String refreshToken, User customer) {}
+//    public record Result(String accessToken, String refreshToken, User customer) {}
+        public record Result(String accessToken, String refreshToken, int userId) {}
 
     @Autowired
     private UserRepository userRepository;
@@ -43,14 +44,14 @@ public class AuthService {
         User find = userRepository.findByEmail(customer.getEmail()).orElse(null);
         if(find != null){
             log.warn("Register account failed: email={} already exists", customer.getEmail());
-            return new ResponseEntity<>(new Result("fail", "fail",null), HttpStatus.OK);
+            return new ResponseEntity<>(new Result("fail", "fail",0), HttpStatus.OK);
         }else {
             customer.setPassword(encoder.encode(customer.getPassword()));
             customer.setRole("USER");
             User saved = userRepository.save(customer);
             log.info("Register account success: customerId={}", customer.getId());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(customer);
-            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), saved), HttpStatus.CREATED);
+            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), saved.getId()), HttpStatus.CREATED);
         }
 
     }
@@ -62,10 +63,10 @@ public class AuthService {
             );
             User fullCustomer = userRepository.findByEmail(customer.getEmail()).orElseThrow();
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(fullCustomer);
-            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), fullCustomer), HttpStatus.OK);
+            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), fullCustomer.getId()), HttpStatus.OK);
         } catch (BadCredentialsException e) {
             log.warn("Authentication failed: email={}", customer.getEmail());
-            return new ResponseEntity<>(new Result("fail", "fail", null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Result("fail", "fail", 0), HttpStatus.BAD_REQUEST);
         }
 
     }

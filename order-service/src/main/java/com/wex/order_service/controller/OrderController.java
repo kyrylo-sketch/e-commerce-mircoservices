@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin
+//@CrossOrigin
 public class OrderController {
 
     @Autowired
