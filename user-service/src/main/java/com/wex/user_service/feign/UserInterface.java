@@ -10,6 +10,6 @@ import java.util.List;
 
 @FeignClient("ORDER-SERVICE")
 public interface UserInterface {
-    @PostMapping("/userOrders")
+    @PostMapping("/api/orders/userOrders")
     public ResponseEntity<List<OrderWrapper>> getUsersOrders(@RequestBody List<Integer> orderIds);
 }

@@ -21,9 +21,8 @@ public class Order {
     private double price;
     private String shippingAddress;
 
-    public Order(Status status, List<OrderItem> items, String shippingAddress) {
+    public Order(Status status, String shippingAddress) {
         this.status = status;
-        this.items = items;
         this.shippingAddress = shippingAddress;
     }
 }

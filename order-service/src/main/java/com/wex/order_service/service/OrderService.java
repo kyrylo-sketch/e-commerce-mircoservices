@@ -5,6 +5,7 @@ import com.wex.order_service.model.Order;
 import com.wex.order_service.model.OrderItem;
 import com.wex.order_service.model.OrderWrapper;
 import com.wex.order_service.model.Status;
+import com.wex.order_service.repository.OrderItemRepository;
 import com.wex.order_service.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private OrderInterface orderInterface;
@@ -52,8 +56,11 @@ public class OrderService {
 
     public ResponseEntity<OrderItem> addProductToOrder(String productId, int quantity, int orderId) {
         OrderItem orderItem = orderInterface.addToOrder(productId, quantity).getBody();
+        OrderItem saved = orderItemRepository.save(orderItem);
         Order order = orderRepository.findById(orderId).orElse(null);
-        order.getItems().add(orderItem);
+        order.setPrice(order.getPrice() + orderItem.getPrice());
+
+        order.getItems().add(saved);
         orderRepository.save(order);
         return new ResponseEntity<>(orderItem, HttpStatus.OK);
     }

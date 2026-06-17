@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient("PRODUCT-SERVICE")
 public interface OrderInterface {
-    @PostMapping("/addToOrder")
+    @PostMapping("/api/products/addToOrder")
     public ResponseEntity<OrderItem> addToOrder(@RequestParam String productId, @RequestParam int quantity);
 
 }

@@ -28,5 +28,10 @@ public class UserController {
         return userService.findUsersOrders(userId);
     }
 
+    @PostMapping("/addOrder/{userId}/{orderId}")
+    public ResponseEntity<String> addOrder(@PathVariable int orderId, @PathVariable int userId) {
+        return userService.addOrder(userId, orderId);
+    }
+
 
 }

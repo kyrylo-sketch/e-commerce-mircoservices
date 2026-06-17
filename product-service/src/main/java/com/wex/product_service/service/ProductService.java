@@ -53,6 +53,9 @@ public class ProductService {
         orderItem.setPrice(product.getPrice()*quantity);
         orderItem.setDescription(product.getDescription());
 
+        product.setAmount(product.getAmount()-quantity);
+        updateProduct(product);
+
         return new ResponseEntity<>(orderItem, HttpStatus.OK);
     }
 }
