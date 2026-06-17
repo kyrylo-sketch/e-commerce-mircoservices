@@ -29,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/addOrder/{userId}/{orderId}")
-    public ResponseEntity<String> addOrder(@PathVariable int orderId, @PathVariable int userId) {
+    public ResponseEntity<User> addOrder(@PathVariable int orderId, @PathVariable int userId) {
         return userService.addOrder(userId, orderId);
     }
 

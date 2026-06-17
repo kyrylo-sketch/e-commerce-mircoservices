@@ -29,12 +29,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody Product product){
+    public ResponseEntity<Product> createProduct(@RequestBody Product product){
         return productService.saveProduct(product);
     }
 
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody Product product){
+    public ResponseEntity<Product> updateProduct(@RequestBody Product product){
         return productService.updateProduct(product);
     }
 

@@ -38,10 +38,10 @@ public class UserService {
         return new ResponseEntity<>(userOrders, HttpStatus.OK);
     }
 
-    public ResponseEntity<String> addOrder(int userId, int orderId) {
+    public ResponseEntity<User> addOrder(int userId, int orderId) {
         User user = findUserById(userId).getBody();
         user.getOrderIds().add(orderId);
-        userRepository.save(user);
-        return new ResponseEntity<>("order added successful",HttpStatus.OK);
+        User saved = userRepository.save(user);
+        return new ResponseEntity<>(saved ,HttpStatus.OK);
     }
 }

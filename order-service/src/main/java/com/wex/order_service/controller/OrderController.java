@@ -39,7 +39,7 @@ public class OrderController {
     }
 
     @PutMapping
-    public ResponseEntity<String> updateOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> updateOrder(@RequestBody Order order) {
         return orderService.updateOrder(order);
     }
 
@@ -56,6 +56,11 @@ public class OrderController {
     @PostMapping("/userOrders")
     public ResponseEntity<List<OrderWrapper>> getUsersOrders(@RequestBody List<Integer> orderIds) {
         return orderService.getUsersOrders(orderIds);
+    }
+
+    @GetMapping("/orderItems/{orderId}")
+    public ResponseEntity<List<OrderItem>> getOrderItems(@PathVariable int orderId) {
+        return orderService.getOrderItems(orderId);
     }
 
 }

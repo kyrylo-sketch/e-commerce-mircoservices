@@ -44,9 +44,9 @@ public class OrderService {
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 
-    public ResponseEntity<String> updateOrder(Order order) {
-        orderRepository.save(order);
-        return new ResponseEntity<>("Order updated successfully", HttpStatus.OK);
+    public ResponseEntity<Order> updateOrder(Order order) {
+        Order updated = orderRepository.save(order);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     public ResponseEntity<String> deleteOrder(int id) {
@@ -80,5 +80,12 @@ public class OrderService {
         }
 
         return new ResponseEntity<>(orderWrappers, HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<OrderItem>> getOrderItems(int orderId) {
+        Order order = orderRepository.findById(orderId).orElse(null);
+        List<OrderItem> orderItems = order.getItems();
+
+        return new ResponseEntity<>(orderItems, HttpStatus.OK);
     }
 }

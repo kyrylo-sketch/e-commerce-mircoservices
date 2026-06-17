@@ -30,14 +30,14 @@ public class ProductService {
         return  new ResponseEntity<>(productRepo.findByName(name).orElse(null), HttpStatus.OK);
     }
 
-    public ResponseEntity<String> saveProduct(Product product){
-        productRepo.save(product);
-        return new ResponseEntity<>("product saved successfully",HttpStatus.OK);
+    public ResponseEntity<Product> saveProduct(Product product){
+        Product saved = productRepo.save(product);
+        return new ResponseEntity<>(saved,HttpStatus.OK);
     }
 
-    public ResponseEntity<String> updateProduct(Product product){
-        productRepo.save(product);
-        return new ResponseEntity<>("product updated successfully",HttpStatus.OK);
+    public ResponseEntity<Product> updateProduct(Product product){
+        Product updated = productRepo.save(product);
+        return new ResponseEntity<>(updated,HttpStatus.OK);
     }
 
     public ResponseEntity<String> deleteProduct(String id){
@@ -48,6 +48,7 @@ public class ProductService {
     public ResponseEntity<OrderItem> addToOrder(String productId, int quantity) {
         Product product = productRepo.findById(productId).orElse(null);
         OrderItem orderItem = new OrderItem();
+        orderItem.setName(product.getName());
         orderItem.setProductId(productId);
         orderItem.setQuantity(quantity);
         orderItem.setPrice(product.getPrice()*quantity);
