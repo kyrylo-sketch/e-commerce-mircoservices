@@ -21,13 +21,14 @@ public class UserService {
     @Autowired
     private UserInterface userInterface;
 
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> findAllUsers() {
         return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
 
     public ResponseEntity<User> findUserById(int id) {
-        Optional<User> user = userRepository.findById(id);
-        return new ResponseEntity<>(user.orElse(null), HttpStatus.OK);
+        User user = userRepository.findById(id).orElse(null);
+        if(user == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 
@@ -40,6 +41,7 @@ public class UserService {
 
     public ResponseEntity<User> addOrder(int userId, int orderId) {
         User user = findUserById(userId).getBody();
+        if(user == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         user.getOrderIds().add(orderId);
         User saved = userRepository.save(user);
         return new ResponseEntity<>(saved ,HttpStatus.OK);

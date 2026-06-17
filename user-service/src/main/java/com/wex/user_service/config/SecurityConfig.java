@@ -45,11 +45,10 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(request ->
-                        request.requestMatchers("/api/auth/register","/api/auth/login", "/api/auth/refresh",
+                        request.requestMatchers("/api/auth/register","/api/auth/login", "/api/auth/refresh", "/api/products/**",
                                 "/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/customers","/api/accounts")
-                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/products", "/api/accounts")
                                 .hasAuthority("ADMIN")
                                 .anyRequest().authenticated())

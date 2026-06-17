@@ -21,7 +21,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final List<String> PUBLIC_PATHS = List.of(
             "/api/auth/login",
             "/api/auth/register",
-            "/api/auth/refresh"
+            "/api/auth/refresh",
+            "/api/products/**",
+            "/api/products"
     );
 
     @Override
@@ -45,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null && !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }

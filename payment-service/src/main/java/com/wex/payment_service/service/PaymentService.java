@@ -46,7 +46,7 @@ public class PaymentService {
     public ResponseEntity<Payment> addOrderToPayment(int paymentId, int orderId) {
         Payment payment = getPaymentById(paymentId).getBody();
         payment.setOrderId(orderId);
-        ResponseEntity<String> updated = updatePayment(payment);
+        ResponseEntity<Payment> updated = updatePayment(payment);
         return new ResponseEntity<>(updated.getBody(), HttpStatus.OK);
     }
 }
