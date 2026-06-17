@@ -36,15 +36,19 @@ public class PaymentService {
     }
 
     public ResponseEntity<Payment> getPaymentById(int paymentId) {
-        return new ResponseEntity<>(paymentRepository.findById(paymentId).orElse(null), HttpStatus.OK);
+        Payment payment = paymentRepository.findById(paymentId).orElse(null);
+        if (payment == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(payment, HttpStatus.OK);
     }
 
     public ResponseEntity<List<Payment>> getPaymentByOrderId(int orderId) {
+        paymentRepository.getPaymentByOrderId(orderId);
         return new ResponseEntity<>(paymentRepository.getPaymentByOrderId(orderId), HttpStatus.OK);
     }
 
     public ResponseEntity<Payment> addOrderToPayment(int paymentId, int orderId) {
         Payment payment = getPaymentById(paymentId).getBody();
+        if (payment == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         payment.setOrderId(orderId);
         ResponseEntity<Payment> updated = updatePayment(payment);
         return new ResponseEntity<>(updated.getBody(), HttpStatus.OK);
