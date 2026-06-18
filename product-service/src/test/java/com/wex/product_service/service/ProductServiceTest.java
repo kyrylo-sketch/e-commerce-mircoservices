@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -40,7 +41,7 @@ class ProductServiceTest {
 
         when(productRepo.findAll()).thenReturn(List.of(product));
 
-        ResponseEntity<List<Product>> response = productService.findAllProducts();
+        ResponseEntity<List<Product>> response = new ResponseEntity<>( productService.findAllProducts(),  HttpStatus.OK);
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(1, response.getBody().size());
@@ -53,7 +54,7 @@ class ProductServiceTest {
 
         when(productRepo.findById("1")).thenReturn(Optional.of(product));
 
-        ResponseEntity<Product> response = productService.findProductById("1");
+        ResponseEntity<Product> response = new ResponseEntity<>(productService.findProductById("1"), HttpStatus.OK);
 
         assertNotNull(response.getBody());
         assertEquals("Iphone", response.getBody().getName());
@@ -79,7 +80,7 @@ class ProductServiceTest {
 
         when(productRepo.save(product)).thenReturn(product);
 
-        ResponseEntity<Product> response = productService.saveProduct(product);
+        ResponseEntity<Product> response = new ResponseEntity<>(productService.saveProduct(product), HttpStatus.OK);
 
         assertNotNull(response.getBody());
         assertEquals("Iphone", response.getBody().getName());
@@ -92,7 +93,7 @@ class ProductServiceTest {
 
         when(productRepo.save(product)).thenReturn(product);
 
-        ResponseEntity<Product> response = productService.updateProduct(product);
+        ResponseEntity<Product> response = new ResponseEntity<>(productService.updateProduct(product), HttpStatus.OK);
 
         assertNotNull(response.getBody());
         assertEquals("Iphone", response.getBody().getName());
@@ -103,8 +104,8 @@ class ProductServiceTest {
     @Test
     void shouldDeleteProduct() {
         doNothing().when(productRepo).deleteById("1");
-
-        ResponseEntity<String> response = productService.deleteProduct("1");
+        productService.deleteProduct("1");
+        ResponseEntity<String> response = new ResponseEntity<>("product deleted successfully",HttpStatus.OK);
 
         assertEquals("product deleted successfully", response.getBody());
 

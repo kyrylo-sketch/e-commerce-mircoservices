@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: demo_postgres
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 102836547
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/posgresql/data
+
+  redis:
+    image: redis:8.6.4
+    container_name: demo_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -19,9 +19,10 @@ public class Order {
     @OneToMany
     private List<OrderItem> items = new ArrayList<>();
     private double price;
-    private String shippingAddress;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Address shippingAddress;
 
-    public Order(Status status, String shippingAddress) {
+    public Order(Status status, Address shippingAddress) {
         this.status = status;
         this.shippingAddress = shippingAddress;
     }

@@ -4,6 +4,10 @@ import com.wex.product_service.model.OrderItem;
 import com.wex.product_service.model.Product;
 import com.wex.product_service.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,31 +22,44 @@ public class ProductService {
     private ProductRepository productRepo;
 
 
-    public ResponseEntity<List<Product>> findAllProducts(){
-        return new ResponseEntity<>(productRepo.findAll(), HttpStatus.OK);
+    @Cacheable(value = "products:list")
+    public List<Product> findAllProducts(){
+        return productRepo.findAll();
     }
 
-    public ResponseEntity<Product> findProductById(String id){
-        return new ResponseEntity<>(productRepo.findById(id).orElse(null), HttpStatus.OK);
+//    @Cacheable(value = "products", key = "#id")
+//    public ResponseEntity<Product> findProductById(String id){
+//        return new ResponseEntity<>(productRepo.findById(id).orElse(null), HttpStatus.OK);
+//    }
+    @Cacheable(value = "products", key = "#id")
+    public Product findProductById(String id){
+        return productRepo.findById(id).orElse(null);
     }
 
     public ResponseEntity<Product> findProductByName(String name){
         return  new ResponseEntity<>(productRepo.findByName(name).orElse(null), HttpStatus.OK);
     }
 
-    public ResponseEntity<Product> saveProduct(Product product){
+    @CacheEvict(value = "products:list", allEntries = true)
+    @CachePut(value = "products", key = "#result.id")
+    public Product saveProduct(Product product){
         Product saved = productRepo.save(product);
-        return new ResponseEntity<>(saved,HttpStatus.OK);
+        return saved;
     }
 
-    public ResponseEntity<Product> updateProduct(Product product){
+    @CachePut(value = "products", key = "#product.id")
+    @CacheEvict(value = "products:list",  allEntries = true)
+    public Product updateProduct(Product product){
         Product updated = productRepo.save(product);
-        return new ResponseEntity<>(updated,HttpStatus.OK);
+        return updated;
     }
 
-    public ResponseEntity<String> deleteProduct(String id){
+    @Caching(evict = {
+            @CacheEvict(value = "products:list", allEntries = true),
+            @CacheEvict(value = "products", key = "#id")
+    })
+    public void deleteProduct(String id){
         productRepo.deleteById(id);
-        return new ResponseEntity<>("product deleted successfully",HttpStatus.OK);
     }
 
     public ResponseEntity<OrderItem> addToOrder(String productId, int quantity) {

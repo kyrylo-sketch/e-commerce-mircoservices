@@ -2,6 +2,7 @@ package com.wex.payment_service.service;
 
 import com.wex.payment_service.controller.PaymentController;
 import com.wex.payment_service.model.Payment;
+import com.wex.payment_service.model.Status;
 import com.wex.payment_service.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,5 +53,11 @@ public class PaymentService {
         payment.setOrderId(orderId);
         ResponseEntity<Payment> updated = updatePayment(payment);
         return new ResponseEntity<>(updated.getBody(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Status> getPaymentStatus(int orderId) {
+        Payment payment = paymentRepository.findPaymentByOrderId(orderId);
+        if (payment == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(payment.getStatus(), HttpStatus.OK);
     }
 }
