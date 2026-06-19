@@ -1,5 +1,10 @@
 services:
 
+  frontend:
+    image: gavrilukkirilo/ecommerce-frontend:v1
+    ports:
+      - "3000:80"
+
   service-registry:
     build: ./service-registry
     ports:
@@ -9,3 +14,152 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8765:8765"
+    env_file:
+      - .env
+    environment:
+#      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      user-db:
+        condition: service_healthy
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8083:8083"
+    environment:
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      order-db:
+        condition: service_healthy
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8084:8084"
+    environment:
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      payment-db:
+        condition: service_healthy
+
+  notification-service:
+    build: ./notification-service
+    ports:
+      - "8085:8085"
+    environment:
+      - EUREKA_URI=http://service-registry:8761/eureka/
+    depends_on:
+      service-registry:
+        condition: service_healthy
+
+
+
+#data-base
+  user-db:
+    image: postgres
+    restart: always
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=userdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=102836547
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d",  "userdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  order-db:
+    image: postgres
+    restart: always
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=orderdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=102836547
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d",  "orderdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-db:
+    image: postgres
+    restart: always
+    volumes:
+      - payment-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=paymentdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=102836547
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d",  "paymentdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:8.6.4
+    container_name: product_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  user-db-data:
+  order-db-data:
+  payment-db-data:
+  redis_data:
