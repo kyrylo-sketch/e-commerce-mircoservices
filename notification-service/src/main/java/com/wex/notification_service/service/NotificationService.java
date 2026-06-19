@@ -4,6 +4,7 @@ import com.wex.notification_service.model.OrderRequest;
 import com.wex.notification_service.model.PaymentRequest;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class NotificationService {
 
     @Autowired
     private JavaMailSender javaMailSender;
 
     public ResponseEntity<String> sendMailAboutOrder(OrderRequest orderRequest) {
+        log.info("Sending mail about order request");
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -32,6 +35,7 @@ public class NotificationService {
 
             try(var inputStream = Objects.requireNonNull(
                     NotificationService.class.getResourceAsStream("/templates/email-context-order.html"))){
+                log.info("Sending mail about order, sending html");
 
                 String address = orderRequest.getShippingAddress().getStreet() + " " + orderRequest.getShippingAddress().getCity() + " " + orderRequest.getShippingAddress().getCountry();
                 String html = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
@@ -45,18 +49,22 @@ public class NotificationService {
 
                 helper.setText(html, true);
                 javaMailSender.send(mimeMessage);
+                log.info("Sending mail about order successfully");
                 return new ResponseEntity<>("success", HttpStatus.OK);
 
             } catch (IOException e) {
+                log.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         } catch (MessagingException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
 
     public ResponseEntity<String> sendMailAboutPayment(PaymentRequest paymentRequest) {
-        System.out.println("SENDING PAYMENT");
+        log.info("Sending mail about payment request");
+
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -66,7 +74,7 @@ public class NotificationService {
 
             try(var inputStream = Objects.requireNonNull(
                     NotificationService.class.getResourceAsStream("/templates/email-context-payment.html"))){
-                System.out.println("SENDING HTML BODY");
+                log.info("Sending mail about payment, sending html");
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
                 String date = paymentRequest.getPaymentDate().format(formatter);
@@ -82,13 +90,15 @@ public class NotificationService {
 
                 helper.setText(html, true);
                 javaMailSender.send(mimeMessage);
-                System.out.println("EMAIL SENT");
+                log.info("Sending mail about payment successfully");
                 return new ResponseEntity<>("success", HttpStatus.OK);
 
             } catch (IOException e) {
+                log.error(e.getMessage(), e);
                 throw new RuntimeException(e);
             }
         } catch (MessagingException e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }
