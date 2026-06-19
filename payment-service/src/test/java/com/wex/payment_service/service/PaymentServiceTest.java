@@ -39,7 +39,6 @@ public class PaymentServiceTest {
         payment.setOrderId(1);
         payment.setAmount(100);
         payment.setStatus(Status.SUCCESS);
-        payment.setCardNumber("123456789");
     }
 
     @Test

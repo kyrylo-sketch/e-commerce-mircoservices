@@ -18,14 +18,12 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private Status status;
-    private String cardNumber;
     private double amount;
     private LocalDateTime paymentDate;
     private int orderId;
 
-    public Payment(double amount, String cardNumber, Status status, int orderId) {
+    public Payment(double amount, Status status, int orderId) {
         this.amount = amount;
-        this.cardNumber = cardNumber;
         this.status = status;
         paymentDate = LocalDateTime.now();
         this.orderId = orderId;

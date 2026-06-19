@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Potwierdzenie zamówienia</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color:#f4f4f4; padding:20px;">
+
+<div style="
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+">
+
+    <h2 style="color:#333;">
+        Dziękujemy za zamówienie! 🎉
+    </h2>
+
+    <p>
+        Twoje zamówienie zostało pomyślnie zarejestrowane.
+    </p>
+
+
+    <div style="
+        background:#f8f8f8;
+        padding:15px;
+        border-radius:8px;
+        margin-top:20px;
+    ">
+
+        <h3>Szczegóły zamówienia</h3>
+
+        <p>
+            <b>Numer zamówienia:</b> {{orderId}}
+        </p>
+
+        <p>
+            <b>Status:</b> {{status}}
+        </p>
+
+        <p>
+            <b>Kwota:</b> {{price}}  PLN
+        </p>
+
+    </div>
+
+
+    <div style="
+        margin-top:20px;
+        background:#f8f8f8;
+        padding:15px;
+        border-radius:8px;
+    ">
+
+        <h3>Adres dostawy</h3>
+
+        <p>
+            {{address}}
+        </p>
+
+    </div>
+
+
+    <div style="
+        margin-top:25px;
+        padding:15px;
+        background:#222;
+        color:white;
+        border-radius:8px;
+    ">
+
+        <p style="margin:0;">
+            {{message}}
+        </p>
+
+    </div>
+
+
+    <p style="
+        margin-top:30px;
+        color:#777;
+        font-size:12px;
+    ">
+        Wiadomość wygenerowana automatycznie. Prosimy nie odpowiadać na ten email.
+    </p>
+
+
+</div>
+
+</body>
+</html>

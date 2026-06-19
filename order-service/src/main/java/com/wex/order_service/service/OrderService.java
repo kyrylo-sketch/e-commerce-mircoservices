@@ -1,10 +1,8 @@
 package com.wex.order_service.service;
 
+import com.wex.order_service.feign.NotificationInteface;
 import com.wex.order_service.feign.OrderInterface;
-import com.wex.order_service.model.Order;
-import com.wex.order_service.model.OrderItem;
-import com.wex.order_service.model.OrderWrapper;
-import com.wex.order_service.model.Status;
+import com.wex.order_service.model.*;
 import com.wex.order_service.repository.OrderItemRepository;
 import com.wex.order_service.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,9 @@ public class OrderService {
 
     @Autowired
     private OrderInterface orderInterface;
+
+    @Autowired
+    private NotificationInteface notificationInteface;
 
     public ResponseEntity<List<Order>> findAllOrders() {
         return new ResponseEntity<>(orderRepository.findAll(), HttpStatus.OK);
