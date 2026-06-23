@@ -1,1 +1,4 @@
 .env
+*.env
+application-local.yml
+application-secret.properties
