@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,9 @@ public class OrderService {
     @Autowired
     private NotificationInteface notificationInteface;
 
+    @Autowired
+    private KafkaTemplate<String, OrderRequest> kafkaTemplate;
+
     public ResponseEntity<List<Order>> findAllOrders() {
         log.info("Finding all Orders request");
         return new ResponseEntity<>(orderRepository.findAll(), HttpStatus.OK);
@@ -45,16 +49,34 @@ public class OrderService {
         return new ResponseEntity<>(orderRepository.findByStatus(status), HttpStatus.OK);
     }
 
-    public ResponseEntity<Order> saveOrder(Order order) {
-        log.info("Saving Order request, order {}", order.toString());
+    public ResponseEntity<Order> saveOrder(OrderRequest orderRequest) {
+        log.info("Saving Order request, order {}", orderRequest.toString());
+
+        Order order = new Order();
+
+        order.setPrice(orderRequest.getPrice());
+        order.setStatus(orderRequest.getStatus());
+        order.setShippingAddress(orderRequest.getShippingAddress());
         Order saved = orderRepository.save(order);
+        orderRequest.setOrderId(saved.getId());
+
+        kafkaTemplate.send("order-creating", orderRequest);
         log.info("Saving Order request successfully, order {}", saved.toString());
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 
-    public ResponseEntity<Order> updateOrder(Order order) {
-        log.info("Updating Order request, order {}", order.toString());
+    public ResponseEntity<Order> updateOrder(OrderRequest orderRequest) {
+        log.info("Updating Order request, order {}", orderRequest.toString());
+
+        Order order = new Order();
+
+        order.setStatus(orderRequest.getStatus());
+        order.setShippingAddress(orderRequest.getShippingAddress());
+        order.setPrice(orderRequest.getPrice());
         Order updated = orderRepository.save(order);
+        orderRequest.setOrderId(updated.getId());
+
+        kafkaTemplate.send("order-status-changed", orderRequest);
         log.info("Updating Order request successfully, order {}", updated.toString());
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }

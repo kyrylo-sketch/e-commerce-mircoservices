@@ -15,4 +15,11 @@ public class OrderRequest {
     private Status status;
     private double price;
     private Address shippingAddress;
+
+    public OrderRequest(Notification notification, Status status, double price, Address shippingAddress) {
+        this.notification = notification;
+        this.status = status;
+        this.price = price;
+        this.shippingAddress = shippingAddress;
+    }
 }

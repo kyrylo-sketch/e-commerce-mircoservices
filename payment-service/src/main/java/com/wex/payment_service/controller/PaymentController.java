@@ -1,6 +1,7 @@
 package com.wex.payment_service.controller;
 
 import com.wex.payment_service.model.Payment;
+import com.wex.payment_service.model.PaymentRequest;
 import com.wex.payment_service.model.Status;
 import com.wex.payment_service.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
+    public ResponseEntity<Payment> createPayment(@RequestBody PaymentRequest payment) {
         return paymentService.savePayment(payment);
     }
 

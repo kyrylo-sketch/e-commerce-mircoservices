@@ -1,9 +1,6 @@
 package com.wex.order_service.controller;
 
-import com.wex.order_service.model.Order;
-import com.wex.order_service.model.OrderItem;
-import com.wex.order_service.model.OrderWrapper;
-import com.wex.order_service.model.Status;
+import com.wex.order_service.model.*;
 import com.wex.order_service.repository.OrderRepository;
 import com.wex.order_service.service.OrderService;
 import feign.Response;
@@ -34,12 +31,12 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest order) {
         return orderService.saveOrder(order);
     }
 
     @PutMapping
-    public ResponseEntity<Order> updateOrder(@RequestBody Order order) {
+    public ResponseEntity<Order> updateOrder(@RequestBody OrderRequest order) {
         return orderService.updateOrder(order);
     }
 

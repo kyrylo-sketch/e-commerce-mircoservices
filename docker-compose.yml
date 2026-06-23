@@ -9,6 +9,8 @@ services:
     build: ./service-registry
     ports:
       - "8761:8761"
+    networks:
+      - ecommerce-network
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
       interval: 10s
@@ -19,6 +21,8 @@ services:
     build: ./api-gateway
     ports:
       - "8765:8765"
+    networks:
+      - ecommerce-network
     env_file:
       - .env
     environment:
@@ -32,6 +36,8 @@ services:
     build: ./user-service
     ports:
       - "8081:8081"
+    networks:
+      - ecommerce-network
     env_file:
       - .env
     environment:
@@ -47,6 +53,8 @@ services:
     build: ./product-service
     ports:
       - "8082:8082"
+    networks:
+      - ecommerce-network
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
     depends_on:
@@ -59,6 +67,8 @@ services:
     build: ./order-service
     ports:
       - "8083:8083"
+    networks:
+      - ecommerce-network
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
     depends_on:
@@ -71,6 +81,8 @@ services:
     build: ./payment-service
     ports:
       - "8084:8084"
+    networks:
+      - ecommerce-network
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
     depends_on:
@@ -83,6 +95,8 @@ services:
     build: ./notification-service
     ports:
       - "8085:8085"
+    networks:
+      - ecommerce-network
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
     depends_on:
@@ -90,11 +104,63 @@ services:
         condition: service_healthy
 
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    networks:
+      - ecommerce-network
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "2181" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-#data-base
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    networks:
+      - ecommerce-network
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: [ "CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    ports:
+      - "9000:9000"
+    networks:
+      - ecommerce-network
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+    depends_on:
+      - kafka
+
+
+  #data-base
   user-db:
     image: postgres
     restart: always
+    networks:
+      - ecommerce-network
     volumes:
       - user-db-data:/var/lib/postgresql/data
     environment:
@@ -112,6 +178,8 @@ services:
   order-db:
     image: postgres
     restart: always
+    networks:
+      - ecommerce-network
     volumes:
       - order-db-data:/var/lib/postgresql/data
     environment:
@@ -129,6 +197,8 @@ services:
   payment-db:
     image: postgres
     restart: always
+    networks:
+      - ecommerce-network
     volumes:
       - payment-db-data:/var/lib/postgresql/data
     environment:
@@ -148,6 +218,8 @@ services:
     container_name: product_redis
     ports:
       - "6379:6379"
+    networks:
+      - ecommerce-network
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
@@ -157,6 +229,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 5s
+
+networks:
+  ecommerce-network:
+    driver: bridge
 
 volumes:
   user-db-data:

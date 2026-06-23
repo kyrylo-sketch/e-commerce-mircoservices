@@ -2,14 +2,17 @@ package com.wex.payment_service.service;
 
 import com.wex.payment_service.controller.PaymentController;
 import com.wex.payment_service.model.Payment;
+import com.wex.payment_service.model.PaymentRequest;
 import com.wex.payment_service.model.Status;
 import com.wex.payment_service.repository.PaymentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -19,10 +22,22 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
 
-    public ResponseEntity<Payment> savePayment(Payment payment) {
-        log.info("Saving request  Payment {}", payment.toString());
+    @Autowired
+    private KafkaTemplate<String, PaymentRequest> kafkaTemplate;
+
+    public ResponseEntity<Payment> savePayment(PaymentRequest paymentRequest) {
+        log.info("Saving request  Payment {}", paymentRequest.toString());
+        Payment payment = new Payment();
+        payment.setStatus(paymentRequest.getStatus());
+        payment.setAmount(paymentRequest.getAmount());
+        payment.setPaymentDate(LocalDateTime.now());
+        payment.setOrderId(paymentRequest.getOrderId());
+
         Payment saved = paymentRepository.save(payment);
+
+        kafkaTemplate.send("payment-events", paymentRequest);
         log.info("Saving request successful Payment {}", saved.toString());
+
         return new ResponseEntity<>(saved, HttpStatus.OK);
     }
 
