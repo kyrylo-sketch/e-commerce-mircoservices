@@ -36,4 +36,5 @@ public class NotificationConsumer {
     public void listenPaymentEvent(PaymentRequest paymentRequest) {
         notificationService.sendMailAboutPayment(paymentRequest);
     }
+
 }

@@ -25,4 +25,5 @@ public class Address {
         this.zipcode = zipcode;
         this.country = country;
     }
+
 }
