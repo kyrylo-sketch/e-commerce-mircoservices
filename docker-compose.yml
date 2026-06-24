@@ -1,7 +1,7 @@
 services:
 
   frontend:
-    image: gavrilukkirilo/ecommerce-frontend:v1
+    image: gavrilukkirilo/ecommerce-frontend:v2
     ports:
       - "3000:80"
 
@@ -26,7 +26,7 @@ services:
     env_file:
       - .env
     environment:
-#      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET}
       - EUREKA_URI=http://service-registry:8761/eureka/
     depends_on:
       service-registry:
@@ -55,8 +55,11 @@ services:
       - "8082:8082"
     networks:
       - ecommerce-network
+    env_file:
+      - .env
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
+      - PRODUCT_MONGO_URI=${PRODUCT_MONGO_URI}
     depends_on:
       service-registry:
         condition: service_healthy
