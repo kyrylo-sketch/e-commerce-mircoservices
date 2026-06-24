@@ -97,8 +97,12 @@ services:
       - "8085:8085"
     networks:
       - ecommerce-network
+    env_file:
+      - .env
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_USERNAME=${MAIL_USERNAME}
     depends_on:
       service-registry:
         condition: service_healthy
@@ -157,7 +161,7 @@ services:
 
   #data-base
   user-db:
-    image: postgres
+    image: postgres:17
     restart: always
     networks:
       - ecommerce-network
@@ -176,7 +180,7 @@ services:
       retries: 5
 
   order-db:
-    image: postgres
+    image: postgres:17
     restart: always
     networks:
       - ecommerce-network
@@ -195,7 +199,7 @@ services:
       retries: 5
 
   payment-db:
-    image: postgres
+    image: postgres:17
     restart: always
     networks:
       - ecommerce-network
