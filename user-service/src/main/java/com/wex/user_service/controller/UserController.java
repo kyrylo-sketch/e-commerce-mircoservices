@@ -18,6 +18,11 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        return userService.findAllUsers();
+    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<User> findUserById(@PathVariable int userId) {
         return userService.findUserById(userId);

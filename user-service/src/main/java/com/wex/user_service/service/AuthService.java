@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 public class AuthService {
 
 
-//    public record Result(String accessToken, String refreshToken, User customer) {}
-        public record Result(String accessToken, String refreshToken, int userId) {}
+    //    public record Result(String accessToken, String refreshToken, User customer) {}
+    public record Result(String accessToken, String refreshToken, int userId, String role) {}
 
     @Autowired
     private UserRepository userRepository;
@@ -44,14 +44,14 @@ public class AuthService {
         User find = userRepository.findByEmail(customer.getEmail()).orElse(null);
         if(find != null){
             log.warn("Register account failed: email={} already exists", customer.getEmail());
-            return new ResponseEntity<>(new Result("fail", "fail",0), HttpStatus.OK);
+            return new ResponseEntity<>(new Result("fail", "fail",0, null), HttpStatus.BAD_REQUEST);
         }else {
             customer.setPassword(encoder.encode(customer.getPassword()));
             customer.setRole("USER");
             User saved = userRepository.save(customer);
             log.info("Register account success: customerId={}", customer.getId());
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(customer);
-            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), saved.getId()), HttpStatus.CREATED);
+            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), saved.getId(), saved.getRole()), HttpStatus.CREATED);
         }
 
     }
@@ -63,13 +63,18 @@ public class AuthService {
             );
             User fullCustomer = userRepository.findByEmail(customer.getEmail()).orElseThrow();
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(fullCustomer);
-            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), fullCustomer.getId()), HttpStatus.OK);
+            return new ResponseEntity<>(new Result(jwtService.generateToken(customer.getEmail()), refreshToken.getToken(), fullCustomer.getId(), fullCustomer.getRole()), HttpStatus.OK);
         } catch (BadCredentialsException e) {
             log.warn("Authentication failed: email={}", customer.getEmail());
-            return new ResponseEntity<>(new Result("fail", "fail", 0), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Result("fail", "fail", 0, null), HttpStatus.BAD_REQUEST);
         }
 
     }
 
+    public ResponseEntity<?> createAdmin(User user) {
+        user.setRole("ADMIN");
+        user.setPassword(encoder.encode(user.getPassword()));
+        return new ResponseEntity<>(userRepository.save(user), HttpStatus.CREATED);
+    }
 
 }

@@ -72,6 +72,19 @@ public class ProductService {
     public ResponseEntity<OrderItem> addToOrder(String productId, int quantity) {
         log.info("Adding product to order, productId{}, orderId{}", productId, quantity);
         Product product = productRepo.findById(productId).orElse(null);
+
+        if (product == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        if (quantity <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        if (product.getAmount() < quantity) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         OrderItem orderItem = new OrderItem();
         orderItem.setName(product.getName());
         orderItem.setProductId(productId);

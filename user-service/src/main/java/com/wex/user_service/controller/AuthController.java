@@ -50,5 +50,10 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/create-admin")
+    public ResponseEntity<?> createAdmin(@RequestBody User user) {
+        return authService.createAdmin(user);
+    }
+
 
 }

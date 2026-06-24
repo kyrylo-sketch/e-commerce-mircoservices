@@ -5,6 +5,7 @@ import com.wex.order_service.feign.OrderInterface;
 import com.wex.order_service.model.*;
 import com.wex.order_service.repository.OrderItemRepository;
 import com.wex.order_service.repository.OrderRepository;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -57,6 +58,7 @@ public class OrderService {
         order.setPrice(orderRequest.getPrice());
         order.setStatus(orderRequest.getStatus());
         order.setShippingAddress(orderRequest.getShippingAddress());
+        order.setUserEmail(orderRequest.getNotification().getSendToEmail());
         Order saved = orderRepository.save(order);
         orderRequest.setOrderId(saved.getId());
 
@@ -68,13 +70,23 @@ public class OrderService {
     public ResponseEntity<Order> updateOrder(OrderRequest orderRequest) {
         log.info("Updating Order request, order {}", orderRequest.toString());
 
-        Order order = new Order();
+        Order order = orderRepository.findById(orderRequest.getOrderId())
+                .orElse(null);
+
+        if (order == null) {
+            log.error("Order not found, orderId {}", orderRequest.getOrderId());
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
         order.setStatus(orderRequest.getStatus());
-        order.setShippingAddress(orderRequest.getShippingAddress());
-        order.setPrice(orderRequest.getPrice());
+
         Order updated = orderRepository.save(order);
-        orderRequest.setOrderId(updated.getId());
+
+        orderRequest.setNotification(new Notification(
+                "Status zamówienia #" + order.getId() + " zmieniony",
+                "Twoje zamówienie zmieniło status na: " + orderRequest.getStatus(),
+                order.getUserEmail()
+        ));
 
         kafkaTemplate.send("order-status-changed", orderRequest);
         log.info("Updating Order request successfully, order {}", updated.toString());
@@ -90,23 +102,32 @@ public class OrderService {
 
     public ResponseEntity<OrderItem> addProductToOrder(String productId, int quantity, int orderId) {
         log.info("Adding Product to Order request, orderId{}, quantity{}, productId{},", orderId, quantity, productId);
-        OrderItem orderItem = orderInterface.addToOrder(productId, quantity).getBody();
-        if(orderItem == null){
-            log.error("Order Item is null");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        OrderItem saved = orderItemRepository.save(orderItem);
-        Order order = orderRepository.findById(orderId).orElse(null);
-        if(order == null){
-            log.error("Order Item is null");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        order.setPrice(order.getPrice() + orderItem.getPrice());
+        try {
+            ResponseEntity<OrderItem> response = orderInterface.addToOrder(productId, quantity);
+            OrderItem orderItem = response.getBody();
+            if (orderItem == null) {
+                log.error("Order Item is null");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            OrderItem saved = orderItemRepository.save(orderItem);
+            Order order = orderRepository.findById(orderId).orElse(null);
+            if (order == null) {
+                log.error("Order Item is null");
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            order.setPrice(order.getPrice() + orderItem.getPrice());
 
-        order.getItems().add(saved);
-        orderRepository.save(order);
-        log.info("Adding Product to Order successfully, orderId{}", orderId);
-        return new ResponseEntity<>(orderItem, HttpStatus.OK);
+            order.getItems().add(saved);
+            orderRepository.save(order);
+            log.info("Adding Product to Order successfully, orderId{}", orderId);
+            return new ResponseEntity<>(orderItem, HttpStatus.OK);
+        } catch (FeignException.BadRequest e) {
+            log.error("Product unavailable: productId={}, quantity={}", productId, quantity);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // 400 zamiast 500
+        } catch (FeignException.NotFound e) {
+            log.error("Product not found: productId={}", productId);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 404
+        }
     }
 
     public ResponseEntity<List<OrderWrapper>> getUsersOrders(List<Integer> orderIds) {

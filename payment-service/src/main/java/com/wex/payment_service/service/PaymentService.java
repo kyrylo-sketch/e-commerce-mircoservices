@@ -35,6 +35,8 @@ public class PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
+        paymentRequest.setPaymentDate(saved.getPaymentDate());
+
         kafkaTemplate.send("payment-events", paymentRequest);
         log.info("Saving request successful Payment {}", saved.toString());
 

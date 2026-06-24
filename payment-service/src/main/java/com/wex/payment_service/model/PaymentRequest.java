@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +16,7 @@ public class PaymentRequest {
     private Notification notification;
     private Status status;
     private double amount;
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime paymentDate;
     private int orderId;
 

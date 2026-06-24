@@ -61,7 +61,7 @@ public class AuthServiceTest {
         ResponseEntity<AuthService.Result> register = authService.register(user);
         AuthService.Result result = register.getBody();
 
-        assertEquals(new AuthService.Result("token", new RefreshToken().getToken(), user.getId()), result);
+        assertEquals(new AuthService.Result("token", new RefreshToken().getToken(), user.getId(), user.getRole()), result);
         verify(userRepository, times(1)).findByEmail("email");
         verify(userRepository, times(1)).save(user);
         verify(refreshTokenService, times(1)).createRefreshToken(user);
@@ -76,7 +76,7 @@ public class AuthServiceTest {
         ResponseEntity<AuthService.Result> register = authService.register(user);
         AuthService.Result result = register.getBody();
 
-        assertEquals(new AuthService.Result("fail", "fail",0), result);
+        assertEquals(new AuthService.Result("fail", "fail",0, null), result);
         verify(userRepository, times(1)).findByEmail("email");
     }
 
@@ -116,7 +116,7 @@ public class AuthServiceTest {
         ResponseEntity<AuthService.Result> login = authService.login(user);
         AuthService.Result result = login.getBody();
 
-        assertEquals(new AuthService.Result("fail", "fail", 0), result);
+        assertEquals(new AuthService.Result("fail", "fail", 0, null), result);
         verify(userRepository, never()).findByEmail(user.getEmail());
 
     }

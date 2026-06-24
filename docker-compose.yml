@@ -1,7 +1,7 @@
 services:
 
   frontend:
-    image: gavrilukkirilo/ecommerce-frontend:v2
+    image: gavrilukkirilo/ecommerce-frontend:v3
     ports:
       - "3000:80"
 

@@ -16,6 +16,7 @@ public class OrderRequest {
     private double price;
     private Address shippingAddress;
 
+
     public OrderRequest(Notification notification, Status status, double price, Address shippingAddress) {
         this.notification = notification;
         this.status = status;

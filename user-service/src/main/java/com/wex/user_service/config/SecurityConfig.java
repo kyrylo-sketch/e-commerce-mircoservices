@@ -46,10 +46,16 @@ public class SecurityConfig {
 //                }))
                 .authorizeHttpRequests(request ->
                         request.requestMatchers("/api/auth/register","/api/auth/login", "/api/auth/refresh", "/api/products/**",
-                                "/swagger-ui/**", "/v3/api-docs/**")
+                                "/swagger-ui/**", "/v3/api-docs/**", "/api/auth/create-admin")
                                 .permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/products", "/api/accounts")
+                                .requestMatchers(HttpMethod.POST, "/api/products")
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/products","/api/orders")
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/customers")
+                                .hasAuthority("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/products/{productId}")
                                 .hasAuthority("ADMIN")
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
