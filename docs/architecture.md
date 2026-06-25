@@ -18,10 +18,10 @@ It consists of independent services communicating via REST and Kafka.
 ```mermaid
 graph TD
 
-Eureka Server --> UserService
-Eureka Server --> ProductService
-Eureka Server --> OrderService
-Eureka Server --> PaymentService
+EurekaServer --> UserService
+EurekaServer --> ProductService
+EurekaServer --> OrderService
+EurekaServer --> PaymentService
 
 Client --> API_Gateway
 API_Gateway --> UserService
