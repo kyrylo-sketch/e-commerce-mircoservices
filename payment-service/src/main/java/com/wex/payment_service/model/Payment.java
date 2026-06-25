@@ -23,12 +23,14 @@ public class Payment {
     private double amount;
     private LocalDateTime paymentDate;
     private int orderId;
+    private String emailSendTo;
 
-    public Payment(double amount, Status status, int orderId) {
+    public Payment(double amount, Status status, int orderId, String emailSendTo) {
         this.amount = amount;
         this.status = status;
         paymentDate = LocalDateTime.now();
         this.orderId = orderId;
+        this.emailSendTo = emailSendTo;
     }
 
 }
