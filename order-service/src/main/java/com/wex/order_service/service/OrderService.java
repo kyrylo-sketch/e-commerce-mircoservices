@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -159,5 +160,32 @@ public class OrderService {
 
         log.info("Getting Order Items successfully");
         return new ResponseEntity<>(orderItems, HttpStatus.OK);
+    }
+
+    public void updateStatusOrder(PaymentRequest paymentRequest) {
+        log.info("Updating Order Status request");
+        Order order = findById(paymentRequest.getOrderId()).getBody();
+        if (order == null) {
+            log.error("Order not found, orderId {}", paymentRequest.getOrderId());
+        }else {
+            if (Objects.requireNonNull(paymentRequest.getStatus()) == StatusPayment.SUCCESS) {
+                order.setStatus(Status.PAID);
+            }
+            Order saved = orderRepository.save(order);
+
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.setOrderId(saved.getId());
+            orderRequest.setStatus(Status.PAID);
+            orderRequest.setPrice(saved.getPrice());
+            orderRequest.setShippingAddress(saved.getShippingAddress());
+            orderRequest.setNotification(new Notification(
+                    "Status zamówienia #" + saved.getId() + " zmieniony",
+                    "Twoje zamówienie zmieniło status na: " + saved.getStatus(),
+                    saved.getUserEmail()
+            ));
+            kafkaTemplate.send("order-status-changed", orderRequest);
+            log.info("Updating Order Status successfully");
+        }
+
     }
 }

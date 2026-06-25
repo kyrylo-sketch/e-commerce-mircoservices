@@ -1,4 +1,4 @@
-package com.wex.notification_service.model;
+package com.wex.order_service.model;
 
 public enum StatusPayment {
     PENDING,
