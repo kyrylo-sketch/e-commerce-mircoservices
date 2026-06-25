@@ -1,0 +1,23 @@
+package com.wex.payment_service.config;
+
+import com.stripe.Stripe;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@Slf4j
+public class PaymentConfig {
+
+    @Value("${STRIPE_SECRET_KEY}")
+    private String stripeSecretKey;
+
+    @PostConstruct
+    public void initKey(){
+        Stripe.apiKey = stripeSecretKey;
+        log.info("Stripe secret key init..");
+    }
+
+}

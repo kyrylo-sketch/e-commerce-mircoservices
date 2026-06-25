@@ -1,5 +1,7 @@
 package com.wex.payment_service.controller;
 
+import com.stripe.exception.StripeException;
+import com.wex.payment_service.model.OrderRequest;
 import com.wex.payment_service.model.Payment;
 import com.wex.payment_service.model.PaymentRequest;
 import com.wex.payment_service.model.Status;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 @RestController
@@ -39,4 +42,16 @@ public class PaymentController {
     public ResponseEntity<Status> getPaymentStatus(@PathVariable int orderId) {
         return paymentService.getPaymentStatus(orderId);
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<Map<String, Object>> createPayment(@RequestBody Map<String, Object> request) throws StripeException {
+        return paymentService.createPayment(request);
+    }
+
+    @PostMapping("/hostedCheckout")
+    public ResponseEntity<Map<String, String>> hostedCheckout(@RequestBody OrderRequest orderRequest) throws StripeException {
+        return paymentService.hostedCheckout(orderRequest);
+    }
+
+
 }

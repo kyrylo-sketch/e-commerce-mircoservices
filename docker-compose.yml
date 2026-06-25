@@ -1,9 +1,9 @@
 services:
 
-  frontend:
-    image: gavrilukkirilo/ecommerce-frontend:v3
-    ports:
-      - "3000:80"
+#  frontend:
+#    image: gavrilukkirilo/ecommerce-frontend:v3
+#    ports:
+#      - "3000:80"
 
   service-registry:
     build: ./service-registry
@@ -88,6 +88,8 @@ services:
       - ecommerce-network
     environment:
       - EUREKA_URI=http://service-registry:8761/eureka/
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
     depends_on:
       service-registry:
         condition: service_healthy

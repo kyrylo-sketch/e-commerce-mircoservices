@@ -132,17 +132,16 @@ public class OrderService {
 
     public ResponseEntity<List<OrderWrapper>> getUsersOrders(List<Integer> orderIds) {
         log.info("Getting Users Orders request");
-        List<Order> orders = new ArrayList<>();
-        for (Integer orderId : orderIds) {
-            orders.add(orderRepository.findById(orderId).orElse(null));
-        }
         List<OrderWrapper> orderWrappers = new ArrayList<>();
-        for (Order order : orders) {
-            OrderWrapper orderWrapper = new OrderWrapper();
-            orderWrapper.setOrderId(order.getId());
-            orderWrapper.setStatus(order.getStatus());
-            orderWrapper.setPrice(order.getPrice());
-            orderWrappers.add(orderWrapper);
+
+        for (Integer orderId : orderIds) {
+            orderRepository.findById(orderId).ifPresent(order -> {
+                OrderWrapper wrapper = new OrderWrapper();
+                wrapper.setOrderId(order.getId());
+                wrapper.setStatus(order.getStatus());
+                wrapper.setPrice(order.getPrice());
+                orderWrappers.add(wrapper);
+            });
         }
 
         log.info("Getting Users Orders successfully");
